@@ -1,16 +1,14 @@
 import React from 'react'
 import banner from '../img/banner.jpg'
 import PropTypes from 'prop-types'
+import Banner from './Banner'
 
 function MainPage(props) {
     return (
         <div className="container">
             <div className="row">
                 <div className="col">
-                    <div className="banner">
-                        <img src={banner} className="img-fluid" alt="К весне готовы!" />
-                        <h2 className="banner-header">К весне готовы!</h2>
-                    </div>
+                    <Banner />
 
                     <section className="top-sales">
                         <h2 className="text-center">Хиты продаж!</h2>
