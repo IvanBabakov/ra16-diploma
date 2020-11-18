@@ -21,6 +21,16 @@ a:hover {
   cursor: pointer;
 }
 
+/* button, button:hover, button:visited, button:active {
+  border: none;
+  background-color: #fff;
+  color: #727e86;
+}
+
+button:hover {
+  cursor: pointer;
+} */
+
 section {
   margin-top: 2em;
   margin-bottom: 2em;
@@ -543,7 +553,7 @@ section {
 
 .footer-contacts-email {
   display: block;
-}
+} */
 
 /* Bootstrap */
 .nav-link.active {
