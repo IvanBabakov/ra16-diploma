@@ -13,10 +13,16 @@ function App() {
     <Router>
       <div className="App">
       <Header />
-      <Route exact path='/' component={MainPage}/>
-      <Route exact path='/catalog' component={Catalog} />
-      <Route exact path='/about' component={InfoPage} />
-      <Route exact path='/contacts' component={Contacts} />
+      <main className="container">
+        <div className="row">
+          <div className="col">
+            <Route exact path='/' component={MainPage}/>
+            <Route exact path='/catalog' component={Catalog} />
+            <Route exact path='/about' component={InfoPage} />
+            <Route exact path='/contacts' component={Contacts} />
+          </div>
+        </div>
+      </main>
       <Footer />
     </div>
     </Router>
