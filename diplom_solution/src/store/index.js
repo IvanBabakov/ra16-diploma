@@ -1,10 +1,10 @@
 import {createStore, combineReducers} from 'redux';
 import catalogReducer from '../reducers/catalog';
-import mainPageReducer from '../reducers/mainPage';
+import topSalesReducer from '../reducers/topSales';
 
 
 const reducer = combineReducers({
-    mainPage: mainPageReducer,
+    topSales: topSalesReducer,
     catalog: catalogReducer
 });
 

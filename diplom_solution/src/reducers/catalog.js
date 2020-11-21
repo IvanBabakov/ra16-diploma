@@ -1,4 +1,4 @@
-import {ADD_CATALOG_SUCCESS, ADD_CATALOG_REQUEST, ADD_CATALOG_ERROR, ADD_CATEGORIES_REQUEST, ADD_CATEGORIES_SUCCESS, ADD_NEXT_ITEMS_SUCCESS, FETCH_CATEGORY_ITMES_SUCCSESS, FETCH_CATEGORY_ITMES_REQUEST} from '../actions/actionTypes';
+import {ADD_CATALOG_SUCCESS, ADD_CATALOG_REQUEST, ADD_CATALOG_ERROR, ADD_CATEGORIES_REQUEST, ADD_CATEGORIES_SUCCESS, ADD_NEXT_ITEMS_SUCCESS, FETCH_CATEGORY_ITMES_SUCCSESS, FETCH_CATEGORY_ITMES_REQUEST, SET_SEARCH_TEXT, SET_REDIRECT_SEARCH} from '../actions/actionTypes';
 
 const initialState = {
     categories: [],
@@ -8,7 +8,8 @@ const initialState = {
     nextItemsLength: null,
     offset: null,
     currentCategory: null,
-    loaddingCatalog: null
+    loaddingCatalog: null,
+    textSearch: {text: '', redirect: false}
 }
 
 export default function catalogReducer (state = initialState, action) {
@@ -30,6 +31,12 @@ export default function catalogReducer (state = initialState, action) {
         case FETCH_CATEGORY_ITMES_REQUEST:
             const {id} = action.payload;
             return {...state, currentCategory: id}
+        case SET_SEARCH_TEXT:
+            const {text} = action.payload;
+            return {...state, textSearch: {...state.textSearch, text: text}}
+        case SET_REDIRECT_SEARCH:
+            const {toggle} = action.payload;
+            return {...state, textSearch: {...state.textSearch, redirect: toggle}}
         default:
             return state;
     }

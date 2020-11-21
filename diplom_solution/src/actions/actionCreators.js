@@ -1,4 +1,4 @@
-import {ADD_CATALOG_SUCCESS, ADD_CATALOG_REQUEST, ADD_CATALOG_ERROR, ADD_CATEGORIES_SUCCESS, ADD_CATEGORIES_REQUEST, ADD_HIT_SUCCESS, ADD_HIT_REQUEST, ADD_NEXT_ITEMS_SUCCESS, ADD_NEXT_ITEMS_REQUEST, FETCH_CATEGORY_ITMES_SUCCSESS, FETCH_CATEGORY_ITMES_REQUEST} from './actionTypes';
+import {ADD_CATALOG_SUCCESS, ADD_CATALOG_REQUEST, ADD_CATALOG_ERROR, ADD_CATEGORIES_SUCCESS, ADD_CATEGORIES_REQUEST, ADD_HIT_SUCCESS, ADD_HIT_REQUEST, ADD_NEXT_ITEMS_SUCCESS, ADD_NEXT_ITEMS_REQUEST, FETCH_CATEGORY_ITMES_SUCCSESS, FETCH_CATEGORY_ITMES_REQUEST, SET_SEARCH_TEXT, SET_REDIRECT_SEARCH} from './actionTypes';
 
 export function addCatalogSuccess(items) {
     return {type: ADD_CATALOG_SUCCESS, payload: {items}}
@@ -42,4 +42,12 @@ export function fetchCategoryItemsSuccess(categoryItems) {
 
 export function fetchCategoryItemsRequest(id) {
     return {type: FETCH_CATEGORY_ITMES_REQUEST, payload: {id}}
+}
+
+export function setSearchText(text) {
+    return {type: SET_SEARCH_TEXT, payload: {text}}
+}
+
+export function setRedirectSearch(toggle) {
+    return {type: SET_REDIRECT_SEARCH, payload: {toggle}}
 }
