@@ -1,16 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {useSelector, useDispatch} from 'react-redux'
 import {BrowserRouter as Router, NavLink, Redirect} from 'react-router-dom';
 import logo from '../img/header-logo.png';
 import PropTypes from 'prop-types'
-import { setRedirectSearch, setSearchText } from '../actions/actionCreators';
+import { redirectToCart, setCartQuantity, setRedirectSearch, setSearchText } from '../actions/actionCreators';
 
 function Header(props) {
     const {textSearch} = useSelector(state => state.catalog);
+    const {quantity, redirect} = useSelector(state => state.cart);
 
     const dispatch = useDispatch();
 
-    const handlerSearchVisible = () => {
+    useEffect(() => {
+        let cartAmount = 0;
+        const keys = JSON.parse(localStorage.getItem('keys'));
+        if(keys !== null) {
+            const products = keys.map(el => JSON.parse(localStorage.getItem(el)));
+            products.map(el => el.map(el => cartAmount = cartAmount + 1));
+            dispatch(setCartQuantity(cartAmount))
+        }
+    }, [dispatch])
+
+    const handlerSearchVisible = (event) => {
+        event.preventDefault();
         const searchForm = document.querySelector('[data-id="search-form"]');
         const allClass = searchForm.getAttribute('class').split(' ');
         const invisible = allClass.filter(el => el === 'invisible');
@@ -33,15 +45,20 @@ function Header(props) {
         dispatch(setSearchText(event.target.value))
     }
 
+    const handlerToCart = () => {
+        dispatch(redirectToCart(true))
+    }
+
     return (
         <header className="container">
             {textSearch.redirect ? <Redirect to='/catalog'/> : null}
+            {redirect ? <Redirect to='/cart' /> : null}
         <div className="row">
             <div className="col">
                 <nav className="navbar navbar-expand-sm navbar-light bg-light">
-                    <a className="navbar-brand" href="/">
+                    <NavLink className="navbar-brand" to="/">
                         <img src={logo} alt="Bosa Noga" />
-                    </a>
+                    </NavLink>
 
                     <div className="collapase navbar-collapse" id="navbarMain">
                         <ul className="navbar-nav mr-auto">
@@ -62,12 +79,12 @@ function Header(props) {
                             <div className="header-controls-pics">
                                 <div data-id="search-expander" className="header-controls-pic header-controls-search" onClick={handlerSearchVisible}></div>
                                 {/* Do programmatic navigation on click to /cart.html */}
-                                <div className="header-controls-pic header-controls-cart">
-                                    <div className="header-controls-cart-full">1</div>
+                                <div className="header-controls-pic header-controls-cart" onClick={handlerToCart}>
+                                    {quantity > 0 ? <div className="header-controls-cart-full">{quantity}</div> : null}
                                     <div className="header-controls-cart-menu"></div>
                                 </div>
                             </div>
-                            <form data-id="search-form" className='header-controls-search-form form-inline invisible'>
+                            <form data-id="search-form" className='header-controls-search-form form-inline invisible' onSubmit={handlerSearchVisible}>
                                 <input className="form-control" placeholder="Поиск" onChange={handlerInputChange}/>
                             </form>
                         </div>

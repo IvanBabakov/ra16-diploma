@@ -3,24 +3,40 @@ import {useSelector, useDispatch} from 'react-redux'
 import {nanoid} from 'nanoid';
 import PropTypes from 'prop-types'
 import Search from './Search'
-import { addCatalogRequst, addCatalogSuccess, addCategoriesRequest, addCategoriesSuccess, addNextItemsSuccess, fetchCategoryItemsRequest, fetchCategoryItemsSuccess, setRedirectSearch } from '../actions/actionCreators';
+import { addCatalogRequst, addCatalogSuccess, addCategoriesRequest, addCategoriesSuccess, addNextItemsSuccess, fetchCategoryItemsRequest, fetchCategoryItemsSuccess, setRedirectSearch, setSearchText } from '../actions/actionCreators';
+import { NavLink } from 'react-router-dom';
 
 function Catalog(props) {
+
     const {categories, itemsAll, nextItemsLength, offset, currentCategory, loaddingCatalog, textSearch} = useSelector(state => state.catalog);
     const toggle = props.toggle;
     const dispatch = useDispatch();
     
     const fetchHadlerCatalogCategory = async (id, dispatch) => {
-        dispatch(fetchCategoryItemsRequest(id))
+        dispatch(fetchCategoryItemsRequest(id));
         const response = textSearch.text.length > 0 ? await fetch(`http://localhost:7070/api/items?categoryId=${id}&q=${textSearch.text}`) : await fetch(`http://localhost:7070/api/items?categoryId=${id}`);
         const categoriesItems = await response.json();
         dispatch(fetchCategoryItemsSuccess(categoriesItems))
+
+        const parent = document.querySelector('.catalog-categories');
+        const activElement = parent.querySelector('.active');
+        activElement.classList.remove('active');
+        const category = document.getElementById(`${id}`)
+        category.classList.add('active')
     }
     const fetchHadlerCatalogAll = async (dispatch) => {
         dispatch(addCatalogRequst());
-        const response = await fetch('http://localhost:7070/api/items');
+        const response = textSearch.text.length > 0 ? await fetch(`http://localhost:7070/api/items?q=${textSearch.text}`) : await fetch('http://localhost:7070/api/items');
         const allItems = await response.json();
         dispatch(addCatalogSuccess(allItems))
+
+        const parent = document.querySelector('.catalog-categories');
+        if(parent !== null) {
+            const activElement = parent.querySelector('.active');
+            activElement.classList.remove('active');
+            const category = document.getElementById('All')
+            category.classList.add('active')
+        }
     }
 
     useEffect(() => {
@@ -34,6 +50,9 @@ function Catalog(props) {
     }, [dispatch])
 
     useEffect(() => {
+        if(toggle) {
+            dispatch(setSearchText());
+        }
         if(textSearch.text.length > 0) {
             const fetchHeaderSearch = async () => {
                 const response = currentCategory !== null ? await fetch(`http://localhost:7070/api/items?categoryId=${currentCategory}&q=${textSearch.text}`) : await fetch(`http://localhost:7070/api/items?q=${textSearch.text}`)
@@ -54,10 +73,7 @@ function Catalog(props) {
     }
 
     const handleCategorie = (event, id = null) => {
-        const parent = event.target.parentNode.parentNode;
-        const activElement = parent.querySelector('.active');
-        activElement.setAttribute('class', 'nav-link');
-        event.target.setAttribute('class', 'nav-link active');
+        event.preventDefault();
         if(id !== null) {
             fetchHadlerCatalogCategory(id, dispatch)
         } else {
@@ -65,7 +81,7 @@ function Catalog(props) {
 
         }
     }
-
+    
     return (
         <React.Fragment>
             <section className="catalog">
@@ -74,11 +90,11 @@ function Catalog(props) {
                 {categories.length > 0 ? 
                     <ul className="catalog-categories nav justify-content-center">
                         <li key={nanoid()} className="nav-item">
-                            <a className="nav-link active" href='#' onClick={(event) => handleCategorie(event)}>Все</a>
+                            <a id='All' className='nav-link active' href='#' onClick={(event) => handleCategorie(event)}>Все</a>
                         </li>
                         {categories.map(el => 
                             <li key={nanoid()} className="nav-item">
-                                <a className="nav-link" href='#' onClick={(event) => handleCategorie(event, el.id)}>{el.title}</a>
+                                <a id={el.id} className="nav-link" href='#' onClick={(event) => handleCategorie(event, el.id)}>{el.title}</a>
                             </li>
                         )}
                     </ul>      
@@ -88,19 +104,17 @@ function Catalog(props) {
                         <div key={nanoid()} className="col-4">
                             <div className="card catalog-item-card">
                                 <img src={el.images[0]}
-                                    className="card-img-top img-fluid" alt="Босоножки 'MYER'" />
+                                    className="card-img-top img-fluid" alt={el.title} />
                                 <div className="card-body">
                                     <p className="card-text">{el.title}</p>
                                     <p className="card-text">{el.price}</p>
-                                    <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
+                                    <NavLink exact className="btn btn-outline-primary" to={`/catalog/${el.id}`}>Заказать</NavLink>
                                 </div>
                             </div>
                         </div>    
                     )}
                 </div>
-                <div className="text-center">
-                    {nextItemsLength < 6 ? <button className="btn btn-outline-primary" disabled>Загрузить ещё</button> : <button className="btn btn-outline-primary" onClick={handleFetchNextItems}>Загрузить ещё</button>}
-                </div>
+                
                 {loaddingCatalog ? 
                     <div className="preloader">
                        <span></span>
@@ -108,7 +122,11 @@ function Catalog(props) {
                        <span></span>
                        <span></span>
                     </div> 
-                : null}
+                : 
+                    <div className="text-center">
+                        {nextItemsLength < 6 ? <button className="btn btn-outline-primary" disabled>Загрузить ещё</button> : <button className="btn btn-outline-primary" onClick={handleFetchNextItems}>Загрузить ещё</button>}
+                    </div>
+                }
             </section>
         </React.Fragment>
     )

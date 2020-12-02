@@ -2,6 +2,7 @@ import React, {useEffect} from 'react'
 import {nanoid} from 'nanoid'
 import {useSelector, useDispatch} from 'react-redux'
 import { addHitSuccess, addHitRequest} from '../actions/actionCreators'
+import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types'
 
 function TopSales(props) {
@@ -18,6 +19,7 @@ function TopSales(props) {
         }
         fetchHadlerHit();
     }, [dispatch])
+
     return (
         <section className="top-sales">
                 <h2 className="text-center">Хиты продаж!</h2>
@@ -30,7 +32,7 @@ function TopSales(props) {
                             <div className="card-body">
                                 <p className="card-text">{el.title}</p>
                                 <p className="card-text">{el.price} руб.</p>
-                                <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
+                                <NavLink exact className="btn btn-outline-primary" to={`/catalog/${el.id}`}>Заказать</NavLink>
                             </div>
                         </div>
                     </div>    
