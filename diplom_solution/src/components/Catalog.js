@@ -3,7 +3,7 @@ import {useSelector, useDispatch} from 'react-redux'
 import {nanoid} from 'nanoid';
 import PropTypes from 'prop-types'
 import Search from './Search'
-import { addCatalogRequst, addCatalogSuccess, addCategoriesRequest, addCategoriesSuccess, addNextItemsSuccess, fetchCategoryItemsRequest, fetchCategoryItemsSuccess, setRedirectSearch, setSearchText } from '../actions/actionCreators';
+import { addCatalogRequst, addCatalogSuccess, addCategoriesRequest, addCategoriesSuccess, addNextItemsRequest, addNextItemsSuccess, fetchCategoryItemsRequest, fetchCategoryItemsSuccess, setRedirectSearch, setSearchText } from '../actions/actionCreators';
 import { NavLink } from 'react-router-dom';
 
 function Catalog(props) {
@@ -24,12 +24,11 @@ function Catalog(props) {
         const category = document.getElementById(`${id}`)
         category.classList.add('active')
     }
-    const fetchHadlerCatalogAll = async (dispatch) => {
-        dispatch(addCatalogRequst());
-        const response = textSearch.text.length > 0 ? await fetch(`http://localhost:7070/api/items?q=${textSearch.text}`) : await fetch('http://localhost:7070/api/items');
-        const allItems = await response.json();
-        dispatch(addCatalogSuccess(allItems))
 
+    const fetchHadlerCatalogAll = async (dispatch) => {
+        
+        dispatch(addCatalogRequst());
+        
         const parent = document.querySelector('.catalog-categories');
         if(parent !== null) {
             const activElement = parent.querySelector('.active');
@@ -37,6 +36,10 @@ function Catalog(props) {
             const category = document.getElementById('All')
             category.classList.add('active')
         }
+        
+        const response = textSearch.text.length > 0 ? await fetch(`http://localhost:7070/api/items?q=${textSearch.text}`) : await fetch('http://localhost:7070/api/items');
+        const allItems = await response.json();
+        dispatch(addCatalogSuccess(allItems))
     }
 
     useEffect(() => {
@@ -55,6 +58,7 @@ function Catalog(props) {
         }
         if(textSearch.text.length > 0) {
             const fetchHeaderSearch = async () => {
+                dispatch(addCategoriesRequest())
                 const response = currentCategory !== null ? await fetch(`http://localhost:7070/api/items?categoryId=${currentCategory}&q=${textSearch.text}`) : await fetch(`http://localhost:7070/api/items?q=${textSearch.text}`)
                 const itemsSearch = await response.json();
                 dispatch(addCatalogSuccess(itemsSearch));
@@ -67,6 +71,7 @@ function Catalog(props) {
     }, [dispatch])
 
     const handleFetchNextItems = async () => {
+        dispatch(addNextItemsRequest())
         const response = currentCategory === null ? await fetch(`http://localhost:7070/api/items?offset=${offset}`) : await fetch(`http://localhost:7070/api/items?categoryId=${currentCategory}&offset=${offset}`);
         const nextItems = await response.json();
         dispatch(addNextItemsSuccess(nextItems))
@@ -78,7 +83,6 @@ function Catalog(props) {
             fetchHadlerCatalogCategory(id, dispatch)
         } else {
             fetchHadlerCatalogAll(dispatch)
-
         }
     }
     
@@ -99,21 +103,6 @@ function Catalog(props) {
                         )}
                     </ul>      
                 : null}
-                <div className="row">
-                    {itemsAll.map(el => 
-                        <div key={nanoid()} className="col-4">
-                            <div className="card catalog-item-card">
-                                <img src={el.images[0]}
-                                    className="card-img-top img-fluid" alt={el.title} />
-                                <div className="card-body">
-                                    <p className="card-text">{el.title}</p>
-                                    <p className="card-text">{el.price}</p>
-                                    <NavLink exact className="btn btn-outline-primary" to={`/catalog/${el.id}`}>Заказать</NavLink>
-                                </div>
-                            </div>
-                        </div>    
-                    )}
-                </div>
                 
                 {loaddingCatalog ? 
                     <div className="preloader">
@@ -122,10 +111,26 @@ function Catalog(props) {
                        <span></span>
                        <span></span>
                     </div> 
-                : 
-                    <div className="text-center">
-                        {nextItemsLength < 6 ? <button className="btn btn-outline-primary" disabled>Загрузить ещё</button> : <button className="btn btn-outline-primary" onClick={handleFetchNextItems}>Загрузить ещё</button>}
-                    </div>
+                :
+                    <React.Fragment>
+                        <div className="row">
+                            {itemsAll.map(el => 
+                                <div key={nanoid()} className="col-4">
+                                    <div className="card catalog-item-card">
+                                        <img src={el.images[0]} className="card-img-top img-fluid" alt={el.title} />
+                                        <div className="card-body">
+                                            <p className="card-text">{el.title}</p>
+                                            <p className="card-text">{el.price}</p>
+                                            <NavLink exact className="btn btn-outline-primary" to={`/catalog/${el.id}`}>Заказать</NavLink>
+                                        </div>
+                                    </div>
+                                </div>    
+                            )}
+                        </div>
+                        <div className="text-center">
+                            {nextItemsLength < 6 ? null : <button className="btn btn-outline-primary" onClick={handleFetchNextItems}>Загрузить ещё</button>}
+                        </div>
+                    </React.Fragment>    
                 }
             </section>
         </React.Fragment>

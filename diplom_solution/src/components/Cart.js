@@ -12,7 +12,8 @@ function Cart(props) {
             phone: '',
             address: ''
         },
-        checked: false
+        checked: false,
+        ordered: false
     })
     
     const dispatch = useDispatch();
@@ -22,7 +23,7 @@ function Cart(props) {
         if(keys !== null) {
             const productsNew = keys.map(el => JSON.parse(localStorage.getItem(el)));
             productsNew.map(el => el.map(el => setstate(prevstate => ({...prevstate, totalAmount: prevstate.totalAmount + (el.productPrice * el.count)}))));
-            setstate(prevstate => ({...prevstate, products: productsNew}))
+            setstate(prevstate => ({...prevstate, products: productsNew, ordered: false}))
         }
         dispatch(redirectToCart(false))
     }, [dispatch])
@@ -62,29 +63,34 @@ function Cart(props) {
 
     const handlerSubmit = async (event) => {
         event.preventDefault();
-        const arrayProducts = [];
-        state.products.map(el => el.map(el => arrayProducts.push({id: el.id, price: el.productPrice, count: el.count})));
-        const order = JSON.stringify({owner: state.owner, items: arrayProducts});
+        if(state.owner.phone !== '' && state.owner.address !== '' && state.checked === true) {
+            const arrayProducts = [];
+            state.products.map(el => el.map(el => arrayProducts.push({id: el.id, price: el.productPrice, count: el.count})));
+            const order = JSON.stringify({owner: state.owner, items: arrayProducts});
 
-        try {
+            try {
 
-            const response = await fetch('http://localhost:7070/api/order',{
-                method: 'POST',
-                headers: {'Content-Type' : 'application/json'},
-                body: order
-            })
+                const response = await fetch('http://localhost:7070/api/order',{
+                    method: 'POST',
+                    headers: {'Content-Type' : 'application/json'},
+                    body: order
+                })
 
-            console.log(response.status)
+                console.log(response.status)
 
-        } catch (error) {
-            console.log(error)
+            } catch (error) {
+                console.log(error)
+            }
+
+            const checked = document.querySelector('#agreement');
+            checked.checked = false;
+            setstate({products: [], totalAmount: 0, owner: {phone: '', address: ''}, checked: false, ordered: true})
+            localStorage.clear();
+            dispatch(setCartQuantity(0));
+        } else {
+            console.log('Заполните форму!')
         }
         
-        const checked = document.querySelector('#agreement');
-        checked.checked = false;
-        setstate({products: [], totalAmount: 0, owner: {phone: '', address: ''}, checked: false})
-        localStorage.clear();
-        dispatch(setCartQuantity(0));
     }
     
     return (
@@ -127,24 +133,25 @@ function Cart(props) {
                 
                 <section className="order">
                     <h2 className="text-center">Оформить заказ</h2>
-                    <div className="card" style={{maxWidth: 30 + 'rem', margin: 0 +'auto'}}>
-                        <form className="card-body" onSubmit={handlerSubmit}>
-                            <div className="form-group">
-                                <label htmlFor="phone">Телефон</label>
-                                <input className="form-control" id="phone" placeholder="Ваш телефон" onChange={handlerChange} value={state.owner.phone}/>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="address">Адрес доставки</label>
-                                <input className="form-control" id="address" placeholder="Адрес доставки" onChange={handlerChange} value={state.owner.address}/>
-                            </div>
-                            <div className="form-group form-check">
-                                <input type="checkbox" className="form-check-input" id="agreement" onChange={handlerChange}/>
-                                <label className="form-check-label" htmlFor="agreement">Согласен с правилами доставки</label>
-                            </div>
-                            <button type="submit" className="btn btn-outline-secondary">Оформить</button>
-                        </form>
-
-                    </div>
+                    {state.ordered ? <p>Спасибо! Ваш заказ успешно оформлен.</p> : 
+                        <div className="card" style={{maxWidth: 30 + 'rem', margin: 0 +'auto'}}>
+                            <form className="card-body" onSubmit={handlerSubmit}>
+                                <div className="form-group">
+                                    <label htmlFor="phone">Телефон</label>
+                                    <input className="form-control" id="phone" placeholder="Ваш телефон" onChange={handlerChange} value={state.owner.phone}/>
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="address">Адрес доставки</label>
+                                    <input className="form-control" id="address" placeholder="Адрес доставки" onChange={handlerChange} value={state.owner.address}/>
+                                </div>
+                                <div className="form-group form-check">
+                                    <input type="checkbox" className="form-check-input" id="agreement" onChange={handlerChange}/>
+                                    <label className="form-check-label" htmlFor="agreement">Согласен с правилами доставки</label>
+                                </div>
+                                <button type="submit" className="btn btn-outline-secondary">Оформить</button>
+                            </form>
+                        </div>
+                    }
                 </section>
         </div>
     )

@@ -1,4 +1,4 @@
-import {ADD_CATALOG_SUCCESS, ADD_CATALOG_REQUEST, ADD_CATALOG_ERROR, ADD_CATEGORIES_SUCCESS, ADD_CATEGORIES_REQUEST, ADD_HIT_SUCCESS, ADD_HIT_REQUEST, ADD_NEXT_ITEMS_SUCCESS, ADD_NEXT_ITEMS_REQUEST, FETCH_CATEGORY_ITMES_SUCCSESS, FETCH_CATEGORY_ITMES_REQUEST, SET_SEARCH_TEXT, SET_REDIRECT_SEARCH, ADD_TO_CART, REMOVE_FROM_CART, REDIRECT_TO_CART, SET_CART_QUANTITY} from './actionTypes';
+import {ADD_CATALOG_SUCCESS, ADD_CATALOG_REQUEST, ADD_CATALOG_ERROR, ADD_CATEGORIES_SUCCESS, ADD_CATEGORIES_REQUEST, ADD_HIT_SUCCESS, ADD_HIT_REQUEST, ADD_NEXT_ITEMS_SUCCESS, ADD_NEXT_ITEMS_REQUEST, FETCH_CATEGORY_ITMES_SUCCSESS, FETCH_CATEGORY_ITMES_REQUEST, SET_SEARCH_TEXT, SET_REDIRECT_SEARCH, ADD_TO_CART, REMOVE_FROM_CART, REDIRECT_TO_CART, SET_CART_QUANTITY, SET_ITEM_LOCALSTORAGE, GET_ITEM_LOCALSTORAGE, CLEAR_LOCALSTORAGE, REMOVE_ITEM_LOCALSTORAGE} from './actionTypes';
 
 export function addCatalogSuccess(items) {
     return {type: ADD_CATALOG_SUCCESS, payload: {items}}
@@ -66,4 +66,20 @@ export function setCartQuantity(amount) {
 
 export function redirectToCart(value) {
     return {type: REDIRECT_TO_CART, payload: {value}}
+}
+
+export function setItemLocalStorage(key, value) {
+    return {type: SET_ITEM_LOCALSTORAGE, payload: {key, value}}
+}
+
+export function getItemLocalStorage(key) {
+    return {type: GET_ITEM_LOCALSTORAGE, payload: {key}}
+}
+
+export function clearLocalStorage() {
+    return {type: CLEAR_LOCALSTORAGE}
+}
+
+export function removeItemLocalStorage(key) {
+    return {type: REMOVE_ITEM_LOCALSTORAGE, payload: {key}}
 }

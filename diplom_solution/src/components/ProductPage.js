@@ -2,16 +2,17 @@ import React, {useEffect, useState} from 'react';
 import {nanoid} from 'nanoid';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { addToCart } from '../actions/actionCreators';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, getItemLocalStorage } from '../actions/actionCreators';
 
 function ProductPage({match}) {
+    const {data} = useSelector(state => state.localStorage);
     const dispatch = useDispatch();
     
     const [state, setstate] = useState({
         product: {},
         choiseSize: null,
-        amount: null,
+        amount: 1,
         toCart: false
     });
 
@@ -20,8 +21,10 @@ function ProductPage({match}) {
             const response = await fetch(`http://localhost:7070/api/items/${match.params.id}`);
             const product = await response.json();
             setstate(prevstate => ({...prevstate, product: product, toCart: false}))
+            dispatch(getItemLocalStorage(product.title))
         }
         fetchProduct();
+
         const tocartBtn = document.querySelector('.btn-danger');
         tocartBtn.setAttribute('disabled', 'disabled');
     }, [match])
@@ -45,7 +48,7 @@ function ProductPage({match}) {
         if(event.target.innerHTML === '+') {
             setstate(prevstate => ({...prevstate, amount: prevstate.amount ? prevstate.amount < 10 ? prevstate.amount + 1 : 10 : 1}))
         } else {
-            setstate(prevstate => ({...prevstate, amount: prevstate.amount ? prevstate.amount - 1 : 1}))
+            setstate(prevstate => ({...prevstate, amount: prevstate.amount > 1 ? prevstate.amount - 1 : 1}))
         }
     }
 
@@ -59,9 +62,10 @@ function ProductPage({match}) {
         }
 
         const titleInSorage = localStorage.getItem(state.product.title);
+        console.log(titleInSorage, data)
 
-        if(titleInSorage) {
-            const products = JSON.parse(titleInSorage);
+        if(data) {
+            const products =  data//JSON.parse(titleInSorage);
             const sizeInStorage = products.filter(el => el.productSize === state.choiseSize);
             const newProductArray = sizeInStorage.length > 0 ? products.map(function(el){ 
                     if(el.productSize === state.choiseSize) {
@@ -157,7 +161,7 @@ function ProductPage({match}) {
                         </p>
                         <p>Количество: <span className="btn-group btn-group-sm pl-2">
                                 <button className="btn btn-secondary" onClick={handlerCount}>-</button>
-                                <span className="btn btn-outline-primary">{state.amount ? state.amount : 0}</span>
+                                <span className="btn btn-outline-primary">{state.amount ? state.amount : 1}</span>
                                 <button className="btn btn-secondary" onClick={handlerCount}>+</button>
                             </span>
                         </p>
